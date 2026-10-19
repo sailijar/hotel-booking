@@ -15,12 +15,29 @@ use App\Models\User;
 
 class BookingController extends Controller
 {
-    public function create(RoomType $roomType)
-    {
-        abort_unless($roomType->is_active, 404);
+    public function create(Request $request, RoomType $roomType)
+{
+    abort_unless($roomType->is_active, 404);
 
-        return view('bookings.create', compact('roomType'));
-    }
+    $filters = $request->validate([
+        'check_in' => [
+            'nullable',
+            'date',
+            'after_or_equal:today',
+        ],
+        'check_out' => [
+            'nullable',
+            'date',
+            'after:check_in',
+        ],
+    ]);
+
+    return view('bookings.create', [
+        'roomType' => $roomType,
+        'checkIn' => $filters['check_in'] ?? '',
+        'checkOut' => $filters['check_out'] ?? '',
+    ]);
+}
 
     public function store(Request $request, RoomType $roomType)
     {

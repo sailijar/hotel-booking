@@ -226,6 +226,89 @@
     background: #fff0ee;
     border-radius: 8px;
 }
+
+.availability-search {
+    width: 86%;
+    max-width: 1120px;
+    margin: -12px auto 0;
+    position: relative;
+    padding: 22px;
+    background: white;
+    border: 1px solid #e3e9e3;
+    border-radius: 15px;
+    box-shadow: 0 12px 30px rgba(24, 55, 40, 0.08);
+}
+
+.search-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto auto;
+    align-items: end;
+    gap: 14px;
+}
+
+.search-field label {
+    display: block;
+    margin-bottom: 7px;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.search-field input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #d9e1da;
+    border-radius: 7px;
+    font: inherit;
+}
+
+.search-submit {
+    padding: 13px 18px;
+    background: #245747;
+    color: white;
+    border: 0;
+    border-radius: 7px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.search-submit:hover {
+    background: #183f32;
+}
+
+.reset-search {
+    display: inline-block;
+    padding: 12px 5px;
+    color: #245747;
+    font-size: 13px;
+    text-align: center;
+}
+
+.search-error {
+    margin-top: 14px;
+    color: #a42e25;
+    font-size: 13px;
+}
+
+@media (max-width: 760px) {
+    .availability-search {
+        width: 92%;
+    }
+
+    .search-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .search-submit,
+    .reset-search {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .search-grid {
+        grid-template-columns: 1fr;
+    }
+}
     </style>
 </head>
 
@@ -245,6 +328,53 @@
         </div>
     </section>
 
+    <section class="availability-search">
+    <form
+        action="{{ route('home') }}"
+        method="GET"
+        class="search-grid"
+    >
+        <div class="search-field">
+            <label for="check_in">Tanggal Check-in</label>
+
+            <input
+                type="date"
+                id="check_in"
+                name="check_in"
+                min="{{ now()->toDateString() }}"
+                value="{{ old('check_in', request('check_in')) }}"
+                required
+            >
+        </div>
+
+        <div class="search-field">
+            <label for="check_out">Tanggal Check-out</label>
+
+            <input
+                type="date"
+                id="check_out"
+                name="check_out"
+                min="{{ now()->addDay()->toDateString() }}"
+                value="{{ old('check_out', request('check_out')) }}"
+                required
+            >
+        </div>
+
+        <button type="submit" class="search-submit">
+            Cari Kamar
+        </button>
+
+        <a href="{{ route('home') }}" class="reset-search">
+            Reset
+        </a>
+    </form>
+
+    @if ($errors->has('check_in') || $errors->has('check_out'))
+        <div class="search-error">
+            {{ $errors->first('check_in') ?: $errors->first('check_out') }}
+        </div>
+    @endif
+</section>
     <main>
         <div class="section-heading">
             <h2>Pilihan Kamar</h2>
@@ -296,15 +426,21 @@
                         <small>/ malam</small>
                         </div>
                         @if ($type->available_rooms_count > 0)
-                        <a class="book-btn"
-                            href="{{ route('bookings.create', $type) }}">
-                            Pesan Kamar
-                        </a>
-                        @else
-                                <span class="unavailable">
-                                    Tidak tersedia
-                                </span>
-                        @endif
+    <a
+        class="book-btn"
+        href="{{ route('bookings.create', array_filter([
+            'roomType' => $type->id,
+            'check_in' => request('check_in'),
+            'check_out' => request('check_out'),
+        ], fn ($value) => $value !== null && $value !== '')) }}"
+    >
+        Pesan Kamar
+    </a>
+@else
+    <span class="unavailable">
+        {{ $hasDates ? 'Tidak tersedia pada tanggal tersebut' : 'Tidak tersedia' }}
+    </span>
+@endif
                     </div>
                 </article>
             @empty
@@ -319,5 +455,39 @@
     <footer>
         &copy; {{ date('Y') }} Stayora Hotel — Sistem Pemesanan Hotel
     </footer>
+
+    <script>
+    const checkInInput = document.getElementById('check_in');
+    const checkOutInput = document.getElementById('check_out');
+
+    function updateCheckoutMinimum() {
+        if (!checkInInput.value) return;
+
+        const date = new Date(checkInInput.value + 'T00:00:00');
+        date.setDate(date.getDate() + 1);
+
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+
+        const minimumDate = `${year}-${month}-${day}`;
+
+        checkOutInput.min = minimumDate;
+
+        if (
+            checkOutInput.value &&
+            checkOutInput.value < minimumDate
+        ) {
+            checkOutInput.value = '';
+        }
+    }
+
+    checkInInput.addEventListener(
+        'change',
+        updateCheckoutMinimum
+    );
+
+    updateCheckoutMinimum();
+</script>
 </body>
 </html>

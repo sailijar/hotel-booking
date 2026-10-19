@@ -245,14 +245,79 @@
                 grid-template-columns: 1fr;
             }
         }
+        .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+header .header-btn {
+    display: inline-block;
+    padding: 10px 14px;
+    border-radius: 7px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: bold;
+    background: #ffffff;
+    color: #245747;
+}
+
+header .header-btn:hover {
+    background: #e8f0e9;
+}
+
+header .add-btn {
+    background: #d9bd88;
+    color: #173d31;
+}
+
+header .add-btn:hover {
+    background: #e8d1a6;
+}
+
+@media (max-width: 650px) {
+    .header-actions {
+        width: 100%;
+    }
+}
     </style>
 </head>
 
 <body>
     <header>
-        <div class="brand">STAYORA<span>.</span> ADMIN</div>
-        <a href="{{ route('home') }}">Lihat Website Hotel &rarr;</a>
-    </header>
+    <div class="brand">STAYORA<span>.</span> ADMIN</div>
+
+    <div class="header-actions">
+        <a
+            href="{{ route('admin.bookings.index') }}"
+            class="header-btn"
+        >
+            Dashboard
+        </a>
+
+        <a
+            href="{{ route('admin.room-types.index') }}"
+            class="header-btn"
+        >
+            Manajemen Kamar
+        </a>
+
+        <a
+            href="{{ route('admin.room-types.create') }}"
+            class="header-btn add-btn"
+        >
+            + Tambah Tipe Kamar
+        </a>
+
+        <a href="{{ route('home') }}" class="header-btn">
+            Lihat Website
+        </a>
+        <a href="{{ route('admin.rooms.index') }}" class="header-btn">
+            Manajemen Nomor Kamar
+        </a>
+    </div>
+</header>
 
     <main>
         <div class="page-heading">

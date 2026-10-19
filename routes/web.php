@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\Admin\BookingController as AdminBookingController;
+use App\Http\Controllers\Admin\RoomTypeController as AdminRoomTypeController;
+use App\Http\Controllers\Admin\RoomController as AdminRoomController;
 
 // Halaman utama hotel
 Route::get('/', [RoomController::class, 'index'])
@@ -54,5 +56,74 @@ Route::middleware(['auth', 'admin'])
         )->name('bookings.status');
     });
 
+
+        // Manajemen tipe kamar untuk admin
+Route::middleware(['auth', 'admin'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+
+        Route::get(
+            '/room-types',
+            [AdminRoomTypeController::class, 'index']
+        )->name('room-types.index');
+
+        Route::get(
+            '/room-types/create',
+            [AdminRoomTypeController::class, 'create']
+        )->name('room-types.create');
+
+        Route::post(
+            '/room-types',
+            [AdminRoomTypeController::class, 'store']
+        )->name('room-types.store');
+
+        Route::get(
+            '/room-types/{roomType}/edit',
+            [AdminRoomTypeController::class, 'edit']
+        )->name('room-types.edit');
+
+        Route::put(
+            '/room-types/{roomType}',
+            [AdminRoomTypeController::class, 'update']
+        )->name('room-types.update');
+
+        Route::delete(
+            '/room-types/{roomType}',
+            [AdminRoomTypeController::class, 'destroy']
+        )->name('room-types.destroy');
+    });
+
+    // Manajemen nomor kamar
+Route::middleware(['auth', 'admin'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+
+        Route::get('/rooms', [
+            AdminRoomController::class,
+            'index'
+        ])->name('rooms.index');
+
+        Route::get('/rooms/create', [
+            AdminRoomController::class,
+            'create'
+        ])->name('rooms.create');
+
+        Route::post('/rooms', [
+            AdminRoomController::class,
+            'store'
+        ])->name('rooms.store');
+
+        Route::get('/rooms/{room}/edit', [
+            AdminRoomController::class,
+            'edit'
+        ])->name('rooms.edit');
+
+        Route::put('/rooms/{room}', [
+            AdminRoomController::class,
+            'update'
+        ])->name('rooms.update');
+    });
 // Route login dan registrasi dari Laravel Breeze
 require __DIR__.'/auth.php';

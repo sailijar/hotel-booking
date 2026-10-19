@@ -276,7 +276,7 @@
                                 name="check_in"
                                 type="date"
                                 min="{{ now()->toDateString() }}"
-                                value="{{ old('check_in') }}"
+                                value="{{ old('check_in', $checkIn) }}"
                                 required
                             >
                         </div>
@@ -288,7 +288,7 @@
                                 name="check_out"
                                 type="date"
                                 min="{{ now()->addDay()->toDateString() }}"
-                                value="{{ old('check_out') }}"
+                                value="{{ old('check_out', $checkOut) }}"
                                 required
                             >
                         </div>
